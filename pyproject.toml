@@ -1,0 +1,11 @@
+[project]
+name = "fy-4b-tools"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "pillow>=11.3.0",
+    "requests>=2.32.5",
+    "tqdm>=4.67.1",
+]
