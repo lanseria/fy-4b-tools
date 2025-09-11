@@ -6,7 +6,7 @@ import requests
 import argparse # 导入 argparse 模块
 from PIL import Image
 from tqdm import tqdm
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 # --- 配置区 (无变动) ---
 BASE_URL_TEMPLATE = "http://rsapp.nsmc.org.cn/swapQuery/public/tileServer/getTile/fy-4b/full_disk/NatureColor_NoLit/{timestamp}/jpg/{z}/{x}/{y}.png"
@@ -26,7 +26,7 @@ MIN_IMAGE_SIZE_BYTES = 1024
 # --- 其他函数 (无变动) ---
 def find_latest_available_timestamp(session):
     print("正在查找最新的可用数据时间戳...")
-    now_utc = datetime.utcnow() - timedelta(minutes=15)
+    now_utc = datetime.now(timezone.utc) - timedelta(minutes=15)
     for i in range(20):
         check_time = now_utc - timedelta(minutes=i * 15)
         minute = (check_time.minute // 15) * 15
@@ -148,8 +148,8 @@ def main():
         '-t', '--timestamp',
         type=str,
         help="指定要下载的时间戳，格式为 YYYYMMDDHHMMSS。\n"
-             "例如: '20231027120000'\n"
-             "如果未提供，脚本将自动查找最新的可用时间戳。"
+            "例如: '20231027120000'\n"
+            "如果未提供，脚本将自动查找最新的可用时间戳。"
     )
     args = parser.parse_args()
 
