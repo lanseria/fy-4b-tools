@@ -2,3 +2,5 @@
 temp_tiles*/
 *.png
 *.tif
+*.html
+*.json

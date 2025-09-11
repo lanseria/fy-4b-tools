@@ -45,7 +45,8 @@ def georeference_and_reproject(input_image_path, output_geotiff_path, bbox_4326=
     print(f"Image dimensions: {width}x{height}")
 
     srs_source = osr.SpatialReference()
-    proj4_string = "+proj=geos +h=35786000 +lon_0=105 +sweep=x +a=6378137 +b=6356752.314245"
+    # proj4_string = "+proj=geos +h=35785831 +lon_0=105 +sweep=x +datum=WGS84 +units=m +x_0=16000 +y_0=30000"
+    proj4_string = "+proj=geos +h=35785831 +lon_0=105 +sweep=x +datum=WGS84 +units=m"
     srs_source.ImportFromProj4(proj4_string)
     
     x_min, x_max, y_min, y_max = -5568748.0, 5568748.0, -5568748.0, 5568748.0
