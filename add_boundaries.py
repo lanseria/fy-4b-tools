@@ -63,7 +63,7 @@ def add_boundaries_to_geotiff(input_geotiff, output_png):
     ax.add_feature(coastline_10m, 
                    edgecolor='black', 
                    facecolor='none',  # 确保不填充
-                   linewidth=1.2,     # 阴影线条粗细
+                   linewidth=0.4,     # 阴影线条粗细
                    alpha=0.6,         # 阴影透明度
                    zorder=10)         # 绘制顺序，数字越大越靠上
 
@@ -72,14 +72,14 @@ def add_boundaries_to_geotiff(input_geotiff, output_png):
     ax.add_feature(coastline_10m, 
                    edgecolor='white', 
                    facecolor='none', 
-                   linewidth=0.7,     # 白色线条粗细
+                   linewidth=0.2,     # 白色线条粗细
                    zorder=11)         # 确保在阴影之上绘制
     
     print(f"--- Step 4: Saving output PNG to: {output_png} ---")
     
     plt.savefig(
         output_png, 
-        dpi=300,
+        dpi=512,
         bbox_inches='tight',
         pad_inches=0,
         transparent=True
