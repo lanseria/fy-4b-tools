@@ -1,6 +1,6 @@
 裁剪
 ```
-python crop_padding.py fy4b_full_disk_20250911070000.png --crop-x -160 --crop-y -160
+python crop_padding.py fy4b_full_disk_20250911070000.png --crop-x -150 --crop-y -160
 ```
 生成tif
 ```
