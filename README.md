@@ -22,3 +22,7 @@ python georeference_and_reproject.py fy4b_full_disk_20250912060000_adjusted.png 
 ```
 python add_boundaries.py fy4b_full_disk_20250912060000_adjusted_cropped_mercator.tif
 ```
+切图
+```
+python create_tiles.py fy4b_full_disk_20250912060000_adjusted_cropped_mercator.tif ./satellite_tiles_20250912060000
+```
