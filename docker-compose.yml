@@ -1,0 +1,16 @@
+
+services:
+  downloader:
+    build: .
+    container_name: fy-4b-tools
+    restart: unless-stopped
+    
+    volumes:
+      - "${HOST_DATA_PATH}:/data/satellite_tiles"
+    # ----------------- 关键修改部分结束 -----------------
+      
+    # (可选) 挂载 .env 文件，方便在不重建镜像的情况下修改配置
+    # 注意：Docker Compose v2.20+ 默认就会加载 .env 文件，
+    # 所以这行不是严格必需的，但保留它可以增强可读性。
+    env_file:
+      - .env

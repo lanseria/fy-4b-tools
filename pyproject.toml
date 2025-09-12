@@ -1,7 +1,10 @@
 [project]
 name = "fy-4b-tools"
 version = "0.1.0"
-description = "Add your description here"
+description = "A complete toolchain for fetching, processing, and tiling Fengyun-4B (FY-4B) satellite full-disk images into web-ready map tiles."
+authors = [
+    { name = "Lanseria", email = "zhangchao564265135@hotmail.com" },
+]
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
