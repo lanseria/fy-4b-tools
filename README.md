@@ -1,9 +1,15 @@
+下载拼接
+```
+python download_stitch.py
+```
 裁剪
 ```
-python crop_padding.py fy4b_full_disk_20250912060000.png --crop-x -135 --crop-y -162
+python adjust_padding.py 20250912073000 --crop-x -135 --crop-y -162
 ```
 生成tif
 ```
+python create_geotiff.py 20250912073000
+
 python georeference_and_reproject.py fy4b_full_disk_20250912060000_adjusted.png
 
 python georeference_and_reproject.py fy4b_full_disk_20250912060000_adjusted.png \
@@ -24,5 +30,5 @@ python add_boundaries.py fy4b_full_disk_20250912060000_adjusted_cropped_mercator
 ```
 切图
 ```
-python create_tiles.py fy4b_full_disk_20250912060000_adjusted_cropped_mercator.tif ./satellite_tiles_20250912060000
+python create_tiles.py 20250912073000
 ```
