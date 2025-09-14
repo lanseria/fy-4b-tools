@@ -109,6 +109,11 @@ if __name__ == "__main__":
         default='./data',
         help="The base directory for input and output files. Default: './data'"
     )
+    parser.add_argument(
+        "--keep-source",
+        action="store_true",
+        help="If specified, the original source file will not be deleted after processing."
+    )
 
     args = parser.parse_args()
 
@@ -130,10 +135,14 @@ if __name__ == "__main__":
     # --- 成功后自动删除源文件 ---
     if success:
         print(f"\n✅ GeoTIFF creation successful.")
-        try:
-            os.remove(input_filepath)
-            print(f"Successfully deleted source file: {input_filepath}")
-        except OSError as e:
-            print(f"Error deleting source file {input_filepath}: {e}")
+        # --- 核心修正：根据标志决定是否删除 ---
+        if not args.keep_source:
+            try:
+                os.remove(input_filepath)
+                print(f"Successfully deleted source file: {input_filepath}")
+            except OSError as e:
+                print(f"Error deleting source file {input_filepath}: {e}")
+        else:
+            print(f"Source file '{input_filepath}' has been kept as requested.")
     else:
         print(f"\n❌ GeoTIFF creation failed. Source file '{input_filepath}' has been kept for inspection.")
