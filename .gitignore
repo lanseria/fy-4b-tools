@@ -7,3 +7,4 @@ temp_tiles*/
 *.xml
 .env
 *.whl
+ai/project_context.txt

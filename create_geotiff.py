@@ -48,7 +48,7 @@ def create_geotiff_from_image(input_image_path, output_geotiff_path):
     print(f"Image dimensions: {width}x{height}")
 
     srs_source = osr.SpatialReference()
-    proj4_string = "+proj=geos +h=35785831 +lon_0=104.7 +sweep=x +datum=WGS84 +units=m"
+    proj4_string = "+proj=geos +h=35785831 +lon_0=104.9 +sweep=x +datum=WGS84 +units=m"
     srs_source.ImportFromProj4(proj4_string)
     
     x_min, x_max, y_min, y_max = -5568748.0, 5568748.0, -5568748.0, 5568748.0
