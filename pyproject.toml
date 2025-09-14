@@ -9,7 +9,7 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "cartopy>=0.25.0",
-    "gdal>=3.11.3",
+    "gdal==3.11.1",
     "matplotlib>=3.10.6",
     "pillow>=11.3.0",
     "rasterio>=1.4.3",

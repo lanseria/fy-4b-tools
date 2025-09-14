@@ -274,7 +274,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "cartopy", specifier = ">=0.25.0" },
-    { name = "gdal", specifier = ">=3.11.3" },
+    { name = "gdal", specifier = "==3.11.1" },
     { name = "matplotlib", specifier = ">=3.10.6" },
     { name = "pillow", specifier = ">=11.3.0" },
     { name = "rasterio", specifier = ">=1.4.3" },
@@ -285,9 +285,9 @@ requires-dist = [
 
 [[package]]
 name = "gdal"
-version = "3.11.3"
+version = "3.11.1"
 source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple" }
-sdist = { url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/packages/88/e8/f77e577b6d99ddf1fd69dfc6233b9deea0f94445bc979ef56652681caed1/gdal-3.11.3.tar.gz", hash = "sha256:4c3ad0fae393b5ddb093a7e4b890077839b2a6acdbd19202657fe4e881886efa", size = 878190, upload-time = "2025-07-12T11:07:16.975Z" }
+sdist = { url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/packages/23/3c/0352ff9c07fbf0291c302baa50dc99c52162a6d99baf201e135a2549f383/gdal-3.11.1.tar.gz", hash = "sha256:c67b13ba0f26a2e0e6594036a35a3d1ed28258a1ce87869f36ffb044f7c2d9af", size = 878122, upload-time = "2025-07-01T09:14:31.974Z" }
 
 [[package]]
 name = "idna"

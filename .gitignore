@@ -6,3 +6,4 @@ temp_tiles*/
 *.json
 *.xml
 .env
+*.whl

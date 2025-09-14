@@ -32,3 +32,5 @@ python add_boundaries.py fy4b_full_disk_20250912060000_adjusted_cropped_mercator
 ```
 python create_tiles.py 20250912073000
 ```
+windows安装 gdal 编译包
+https://github.com/cgohlke/geospatial-wheels
