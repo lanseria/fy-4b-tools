@@ -110,14 +110,6 @@ if __name__ == "__main__":
     parser.add_argument("timestamp", type=str, help="The timestamp of the data to process, in 'YYYYMMDDHHMMSS' format.")
     parser.add_argument("-d", "--data-dir", type=str, default="data", help="The base directory for input TIFFs and output tiles. Default: 'data'")
     
-    # --- 核心修正点 2: 修改 zoom 的默认值和帮助文本 ---
-    parser.add_argument(
-        "-z", "--zoom",
-        type=str,
-        default="1-7", # <--- 修改默认值
-        help="Zoom levels to generate, in 'min-max' format. Default: '1-7'." # <--- 更新帮助文本
-    )
-    
     parser.add_argument(
         "--gdal2tiles-path",
         type=str,
@@ -125,11 +117,13 @@ if __name__ == "__main__":
     )
     
     args = parser.parse_args()
+
+    zoom_range = os.getenv('TILES_ZOOM_RANGE', '1-7')
     
     process_and_tile_by_timestamp(
         args.timestamp, 
         args.data_dir, 
-        zoom_range=args.zoom, 
+        zoom_range=zoom_range, 
         gdal2tiles_path_arg=args.gdal2tiles_path
     )
     

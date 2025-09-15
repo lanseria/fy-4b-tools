@@ -7,6 +7,7 @@ from PIL import Image
 from tqdm import tqdm
 from datetime import datetime, timedelta, timezone
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from dotenv import load_dotenv
 
 # --- 配置区 (无变动) ---
 BASE_URL_TEMPLATE = "http://rsapp.nsmc.org.cn/swapQuery/public/tileServer/getTile/fy-4b/full_disk/NatureColor_NoLit/{timestamp}/jpg/{z}/{x}/{y}.png"
@@ -92,6 +93,7 @@ def stitch_tiles(timestamp, temp_dir, data_dir):
     print(f"\n拼接完成！完整图像已保存为: {output_filepath}")
     return True
 def main():
+    load_dotenv() # 加载 .env 文件
     parser = argparse.ArgumentParser(
         description="下载并拼接风云4B全圆盘卫星图像。",
         formatter_class=argparse.RawTextHelpFormatter
@@ -104,12 +106,12 @@ def main():
         help="必须提供要下载的时间戳，格式为 YYYYMMDDHHMMSS。"
     )
     parser.add_argument(
-        '-c', '--concurrency', type=int, default=10, help="并发下载线程数。默认为 10。"
-    )
-    parser.add_argument(
         '-d', '--data-dir', type=str, default='./data', help="所有输出文件（临时瓦片、最终图像）的基础目录。默认为 './data'"
     )
     args = parser.parse_args()
+
+    # --- 核心改动：从环境变量读取配置 ---
+    concurrency = int(os.getenv('DOWNLOAD_CONCURRENCY', 10)) # 默认值为 10
 
     os.makedirs(args.data_dir, exist_ok=True)
 
@@ -127,7 +129,7 @@ def main():
         temp_dir_for_timestamp = os.path.join(temp_base_dir, target_timestamp)
         
         try:
-            download_success = download_tiles(session, target_timestamp, temp_dir_for_timestamp, args.concurrency)
+            download_success = download_tiles(session, target_timestamp, temp_dir_for_timestamp, concurrency)
             if not download_success: return
 
             stitch_success = stitch_tiles(target_timestamp, temp_dir_for_timestamp, args.data_dir)

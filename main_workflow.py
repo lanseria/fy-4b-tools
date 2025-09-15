@@ -76,10 +76,10 @@ def run_workflow_for_timestamp(timestamp, args):
     data_dir_args = ['-d', args.data_dir]
     
     # 构建基础命令
-    cmd_download = [python_executable, 'download_stitch.py', '-t', timestamp] + data_dir_args + ['-c', str(args.concurrency)]
-    cmd_adjust = [python_executable, 'adjust_padding.py', timestamp] + data_dir_args + ['--crop-x', str(args.crop_x), '--crop-y', str(args.crop_y)]
+    cmd_download = [python_executable, 'download_stitch.py', '-t', timestamp] + data_dir_args
+    cmd_adjust = [python_executable, 'adjust_padding.py', timestamp] + data_dir_args
     cmd_geotiff = [python_executable, 'create_geotiff.py', timestamp] + data_dir_args
-    cmd_tiles = [python_executable, 'create_tiles.py', timestamp] + data_dir_args + ['-z', args.zoom]
+    cmd_tiles = [python_executable, 'create_tiles.py', timestamp] + data_dir_args
 
     # 如果 --keep-files 标志被设置，则向子脚本传递 --keep-source 指令
     if args.keep_files:
@@ -110,10 +110,6 @@ def main():
     )
     parser.add_argument('-t', '--timestamp', type=str, help="【单次运行模式】只处理这一个时间戳，然后退出。")
     parser.add_argument('-d', '--data-dir', type=str, default=DATA_DIR_DEFAULT, help=f"数据文件的基础目录。默认为 '{DATA_DIR_DEFAULT}'")
-    parser.add_argument('--concurrency', type=int, default=10, help="下载并发数。默认: 10")
-    parser.add_argument('--crop-x', type=int, default=-135, help="X轴边距调整。默认: -135")
-    parser.add_argument('--crop-y', type=int, default=-162, help="Y轴边距调整。默认: -162")
-    parser.add_argument('--zoom', type=str, default='1-7', help="瓦片缩放级别。默认: '1-7'")
     
     # --- 新增的参数 ---
     parser.add_argument(

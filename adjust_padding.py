@@ -3,6 +3,7 @@ import sys
 import argparse
 from PIL import Image
 import numpy as np
+from dotenv import load_dotenv
 
 # 禁用Pillow的像素限制，以处理大图
 Image.MAX_IMAGE_PIXELS = None
@@ -84,6 +85,7 @@ def adjust_image_padding(input_image_path, output_image_path, threshold=10, crop
         return False
 
 if __name__ == "__main__":
+    load_dotenv() # 加载 .env 文件
     parser = argparse.ArgumentParser(
         description="Crops or pads an image based on a timestamp, then cleans up the source file."
     )
@@ -100,30 +102,18 @@ if __name__ == "__main__":
         help="The base directory for input and output images. Default: './data'"
     )
     parser.add_argument(
-        "-t", "--threshold",
-        type=int,
-        default=10,
-        help="Brightness threshold (0-255) to consider a pixel as padding. Default: 10."
-    )
-    parser.add_argument(
-        "--crop-x",
-        type=int,
-        default=0,
-        help="Pixels to adjust from left/right. Positive values crop, negative values add padding."
-    )
-    parser.add_argument(
-        "--crop-y",
-        type=int,
-        default=0,
-        help="Pixels to adjust from top/bottom. Positive values crop, negative values add padding."
-    )
-    parser.add_argument(
         "--keep-source",
         action="store_true", # 这是一个布尔标志
         help="If specified, the original source file will not be deleted after processing."
     )
 
     args = parser.parse_args()
+
+
+    # --- 核心改动：从环境变量读取配置 ---
+    crop_x = int(os.getenv('ADJUST_CROP_X', -135))
+    crop_y = int(os.getenv('ADJUST_CROP_Y', -162))
+    threshold = int(os.getenv('ADJUST_THRESHOLD', 10)) # 顺便也将 threshold 设为可配置
 
     # --- 核心改动：自动构建文件路径 ---
     input_filename = f"fy4b_full_disk_{args.timestamp}.png"
@@ -141,9 +131,9 @@ if __name__ == "__main__":
     success = adjust_image_padding(
         input_filepath, 
         output_filepath, 
-        threshold=args.threshold,
-        crop_x=args.crop_x,
-        crop_y=args.crop_y
+        threshold=threshold,
+        crop_x=crop_x,
+        crop_y=crop_y
     )
     
     if success:
