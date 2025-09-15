@@ -113,7 +113,7 @@ def main():
     parser.add_argument('--concurrency', type=int, default=10, help="下载并发数。默认: 10")
     parser.add_argument('--crop-x', type=int, default=-135, help="X轴边距调整。默认: -135")
     parser.add_argument('--crop-y', type=int, default=-162, help="Y轴边距调整。默认: -162")
-    parser.add_argument('--zoom', type=str, default='1-6', help="瓦片缩放级别。默认: '1-6'")
+    parser.add_argument('--zoom', type=str, default='1-7', help="瓦片缩放级别。默认: '1-7'")
     
     # --- 新增的参数 ---
     parser.add_argument(
