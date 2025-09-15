@@ -1,9 +1,16 @@
-FROM m.daocloud.io/ghcr.io/astral-sh/uv:python3.12-bookworm-slim
+# Step 1: 使用一个稳定、兼容的基础镜像
+FROM m.daocloud.io/docker.io/library/python:3.11-slim-bookworm
 
-# 设置容器内的工作目录
+# Step 2: 设置环境变量
+ENV DEBIAN_FRONTEND=noninteractive \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    HOME=/app
+
+# Step 3: 设置工作目录
 WORKDIR /app
 
-# --- 1. 配置 APT 镜像源  ---
+# --- 配置 APT 镜像源  ---
 RUN echo "\
 Types: deb\n\
 URIs: https://mirrors.tuna.tsinghua.edu.cn/debian/\n\
@@ -12,57 +19,39 @@ Components: main contrib non-free non-free-firmware\n\
 Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg\n\
 " > /etc/apt/sources.list.d/debian.sources
 
-# --- 关键修复 2: 创建用户时，为其指定一个有效的主目录 ---
-# 使用 --home /app 将用户的主目录设置为工作目录 /app
-
-# 这是最关键的一步，它为 GDAL, Rasterio, Cartopy 等库提供了所需的 C/C++ 核心库
-RUN apt-get update && \
+# Step 4: 安装系统级的核心依赖
+# 这是第一个耗时操作。通过把它放在前面，并且不依赖任何项目文件，
+# 只要这一层不改变，Docker 在后续构建中就会直接使用缓存。
+RUN --mount=type=cache,target=/var/cache/apt \
+    --mount=type=cache,target=/var/lib/apt/lists \
+    apt-get update && \
     apt-get install -y --no-install-recommends \
-    # GDAL 核心库和命令行工具 (如 gdal2tiles.py)
-    gdal-bin \
-    libgdal-dev \
-    # Cartopy 和 Rasterio 的依赖
-    libproj-dev \
-    libgeos-dev \
-    # 编译 Python 包可能需要的构建工具
-    build-essential && \
-    # 清理 APT 缓存以减小镜像体积
+    gdal-bin libgdal-dev libproj-dev libgeos-dev build-essential && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# 设置环境变量
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    UV_LINK_MODE=copy \
-# Enable bytecode compilation
-    UV_COMPILE_BYTECODE=1 \
-# Copy from the cache instead of linking since it's a mounted volume
-    PYTHONUNBUFFERED=1 \
-    HOME=/app \
-    PYTHONPATH=/app/src \
-    MPLCONFIGDIR=/app/config/matplotlib \
-    CARTOPY_DATA_DIR=/app/data/cartopy_data \
-# Ensure installed tools can be executed out of the box
-    UV_TOOL_BIN_DIR=/usr/local/bin
+# Step 5: 安装 Python 依赖
+# --- 这是最重要的优化点 ---
+# a. 先只复制 requirements.txt 文件。
+# b. 运行 pip install。
+# 这样，只有当 requirements.txt 文件发生变化时，这一层缓存才会失效，
+# Docker 才需要重新运行这个耗时的 pip install 步骤。
+COPY requirements.txt .
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install --no-cache-dir -r requirements.txt -i https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
 
-RUN --mount=type=cache,target=/root/.cache/uv \
-    --mount=type=bind,source=uv.lock,target=uv.lock \
-    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
-    uv sync --locked --no-install-project --no-dev
+# Step 6: 复制你项目的所有源代码
+# --- 这个步骤被移到了最后 ---
+# 因为你的 Python 脚本 (如 main_workflow.py) 是最常被修改的。
+# 把它放在最后，意味着当你修改代码并重新构建时，
+# 前面的所有步骤 (apt-get, pip install) 都会使用缓存，构建会瞬间完成。
+COPY . .
 
-# 安装 Python 依赖
-COPY . /app
-RUN mkdir -p /app/config/matplotlib /app/data/cartopy_data /app/data
-RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --locked --no-dev
+# Step 7: 创建数据目录 (无变化)
+RUN mkdir -p /app/data
 
-ENV PATH="/app/.venv/bin:$PATH"
-
-# 预下载 Cartopy 数据到我们指定的新目录
-RUN python -c "from cartopy.feature import NaturalEarthFeature; NaturalEarthFeature('physical', 'coastline', '10m')"
-
-# --- 新增: 为数据和输出目录声明卷 ---
-# 这明确表示这些目录用于存储持久化数据
+# Step 8: 声明数据卷 (无变化)
 VOLUME /app/data
 
-# 容器启动时运行的命令
+# Step 9: 设置容器启动命令 (无变化)
 ENTRYPOINT ["python", "main_workflow.py"]

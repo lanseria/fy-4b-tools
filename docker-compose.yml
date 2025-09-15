@@ -6,7 +6,7 @@ services:
     restart: unless-stopped
     
     volumes:
-      - "${HOST_DATA_PATH}:/data/satellite_tiles"
+      - "${HOST_DATA_PATH}:/app/data/satellite_tiles"
     # ----------------- 关键修改部分结束 -----------------
       
     # (可选) 挂载 .env 文件，方便在不重建镜像的情况下修改配置
