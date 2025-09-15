@@ -2,14 +2,7 @@ import os
 import sys
 import argparse
 from osgeo import gdal, osr
-
-# --- 硬编码的默认裁剪范围 (WGS84 经纬度) ---
-DEFAULT_BBOX = {
-    "north": 55.0,
-    "south": -55.0,
-    "west": 60.0,
-    "east": 150.0
-}
+from dotenv import load_dotenv
 
 def transform_bbox_4326_to_3857(bbox):
     """将WGS84经纬度边界框转换为Web墨卡托坐标。"""
@@ -28,7 +21,7 @@ def transform_bbox_4326_to_3857(bbox):
     
     return [min_x, min_y, max_x, max_y]
 
-def create_geotiff_from_image(input_image_path, output_geotiff_path):
+def create_geotiff_from_image(input_image_path, output_geotiff_path, bbox_config, output_width):
     """
     为PNG图像添加地理参考，并将其裁剪重投影为Web墨卡托GeoTIFF。
     返回 True 表示成功，False 表示失败。
@@ -39,12 +32,9 @@ def create_geotiff_from_image(input_image_path, output_geotiff_path):
         return False
 
     src_ds = gdal.Open(input_image_path, gdal.GA_ReadOnly)
-    if src_ds is None:
-        print("Error: Could not open the input image with GDAL.")
-        return False
+    if src_ds is None: return False
 
-    width = src_ds.RasterXSize
-    height = src_ds.RasterYSize
+    width, height = src_ds.RasterXSize, src_ds.RasterYSize
     print(f"Image dimensions: {width}x{height}")
 
     srs_source = osr.SpatialReference()
@@ -64,8 +54,7 @@ def create_geotiff_from_image(input_image_path, output_geotiff_path):
     src_ds = None
     print(f"--- Step 2: Created virtual georeferenced file at '{vrt_path}' ---")
 
-    # 使用硬编码的默认裁剪范围
-    output_bounds_mercator = transform_bbox_4326_to_3857(DEFAULT_BBOX)
+    output_bounds_mercator = transform_bbox_4326_to_3857(bbox_config)
     
     warp_options = gdal.WarpOptions(
         dstSRS='EPSG:3857',
@@ -74,10 +63,11 @@ def create_geotiff_from_image(input_image_path, output_geotiff_path):
         dstAlpha=True,
         creationOptions=['COMPRESS=LZW', 'TILED=YES'],
         outputBounds=output_bounds_mercator,
-        width=4096  # 设置固定宽度以保持高清
+        width=output_width
     )
     
-    print(f"Target extent (Lat/Lon): N={DEFAULT_BBOX['north']}, S={DEFAULT_BBOX['south']}, W={DEFAULT_BBOX['west']}, E={DEFAULT_BBOX['east']}")
+    print(f"Target extent (Lat/Lon): N={bbox_config['north']}, S={bbox_config['south']}, W={bbox_config['west']}, E={bbox_config['east']}")
+    print(f"Target output width: {output_width} pixels")
     print(f"\n--- Step 3: Reprojecting and cropping to -> {output_geotiff_path} ---")
     
     success = False
@@ -95,47 +85,42 @@ def create_geotiff_from_image(input_image_path, output_geotiff_path):
     return success
 
 if __name__ == "__main__":
+    # 在程序开始时加载 .env 文件
+    load_dotenv()
+    
     parser = argparse.ArgumentParser(
-        description="Creates a cropped and georeferenced TIFF from a PNG based on a timestamp, then cleans up the source."
+        description="Creates a cropped GeoTIFF from a PNG based on a timestamp, then cleans up the source."
     )
-    parser.add_argument(
-        "timestamp",
-        type=str,
-        help="The timestamp of the image to process, in 'YYYYMMDDHHMMSS' format."
-    )
-    parser.add_argument(
-        "-d", "--data-dir",
-        type=str,
-        default='./data',
-        help="The base directory for input and output files. Default: './data'"
-    )
-    parser.add_argument(
-        "--keep-source",
-        action="store_true",
-        help="If specified, the original source file will not be deleted after processing."
-    )
-
+    parser.add_argument("timestamp", type=str, help="The timestamp of the image to process, in 'YYYYMMDDHHMMSS' format.")
+    parser.add_argument("-d", "--data-dir", type=str, default='./data', help="The base directory for input and output files.")
+    parser.add_argument("--keep-source", action="store_true", help="If specified, do not delete the source file.")
     args = parser.parse_args()
+
+    # --- 核心改动：从环境变量读取配置，并提供默认值 ---
+    bbox_config = {
+        "north": float(os.getenv('GEOTIFF_BBOX_NORTH', 55.0)),
+        "south": float(os.getenv('GEOTIFF_BBOX_SOUTH', -55.0)),
+        "west": float(os.getenv('GEOTIFF_BBOX_WEST', 60.0)),
+        "east": float(os.getenv('GEOTIFF_BBOX_EAST', 150.0))
+    }
+    output_width = int(os.getenv('GEOTIFF_OUTPUT_WIDTH', 4096))
 
     # --- 自动构建文件路径 ---
     input_filename = f"fy4b_full_disk_{args.timestamp}_adjusted.png"
     input_filepath = os.path.join(args.data_dir, input_filename)
-    
     output_filename = f"fy4b_full_disk_{args.timestamp}_adjusted_mercator.tif"
     output_filepath = os.path.join(args.data_dir, output_filename)
 
-    # 检查输入文件是否存在
     if not os.path.exists(input_filepath):
-        print(f"Error: Input file not found at '{input_filepath}'. Please run the adjustment script first.")
+        print(f"Error: Input file not found at '{input_filepath}'.")
         sys.exit(1)
         
-    # 调用核心处理函数
-    success = create_geotiff_from_image(input_filepath, output_filepath)
+    # --- 调用核心函数，传入配置 ---
+    success = create_geotiff_from_image(input_filepath, output_filepath, bbox_config, output_width)
     
     # --- 成功后自动删除源文件 ---
     if success:
         print(f"\n✅ GeoTIFF creation successful.")
-        # --- 核心修正：根据标志决定是否删除 ---
         if not args.keep_source:
             try:
                 os.remove(input_filepath)
