@@ -16,8 +16,6 @@ def transform_bbox_4326_to_3857(north, south, west, east):
     
     transform = osr.CoordinateTransformation(srs_4326, srs_3857)
     
-    # --- 核心修正点 ---
-    # 修正了参数顺序，应为 (经度, 纬度)
     # 左下角 (west, south)
     # 右上角 (east, north)
     min_x_mercator, min_y_mercator, _ = transform.TransformPoint(west, south)

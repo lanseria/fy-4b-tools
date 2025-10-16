@@ -75,11 +75,10 @@ def process_and_tile_by_timestamp(timestamp_str, data_dir, zoom_range='1-7', gda
     try: cpu_cores = os.cpu_count()
     except NotImplementedError: cpu_cores = 1
     
-    # --- 核心修正点 1: 在命令中添加 --xyz 标志 ---
     command = [
         sys.executable, gdal2tiles_path,
         '--profile', 'mercator',
-        '--xyz',  # <--- 添加此标志以使用 XYZ 瓦片标准
+        '--xyz',  # <--- 此标志以使用 XYZ 瓦片标准
         '--zoom', zoom_range,
         '--processes', str(cpu_cores),
         '--webviewer', 'leaflet',

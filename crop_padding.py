@@ -132,7 +132,7 @@ if __name__ == "__main__":
     else:
         base_name = os.path.basename(args.input_image)
         name_without_ext, ext = os.path.splitext(base_name)
-        output_path = f"{name_without_ext}_adjusted{ext}" # 更新默认输出文件名
+        output_path = f"{name_without_ext}_adjusted{ext}"
 
     adjust_image_padding(
         args.input_image, 

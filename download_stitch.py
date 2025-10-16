@@ -5,7 +5,6 @@ import requests
 import argparse
 from PIL import Image
 from tqdm import tqdm
-from datetime import datetime, timedelta, timezone
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dotenv import load_dotenv
 
@@ -98,7 +97,7 @@ def main():
         description="下载并拼接风云4B全圆盘卫星图像。",
         formatter_class=argparse.RawTextHelpFormatter
     )
-    # --- 核心改动：将 timestamp 设为必需参数 ---
+    # --- 将 timestamp 设为必需参数 ---
     parser.add_argument(
         '-t', '--timestamp',
         type=str,
@@ -110,7 +109,7 @@ def main():
     )
     args = parser.parse_args()
 
-    # --- 核心改动：从环境变量读取配置 ---
+    # --- 从环境变量读取配置 ---
     concurrency = int(os.getenv('DOWNLOAD_CONCURRENCY', 10)) # 默认值为 10
 
     os.makedirs(args.data_dir, exist_ok=True)

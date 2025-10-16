@@ -96,7 +96,7 @@ if __name__ == "__main__":
     parser.add_argument("--keep-source", action="store_true", help="If specified, do not delete the source file.")
     args = parser.parse_args()
 
-    # --- 核心改动：从环境变量读取配置，并提供默认值 ---
+    # --- 从环境变量读取配置，并提供默认值 ---
     bbox_config = {
         "north": float(os.getenv('GEOTIFF_BBOX_NORTH', 55.0)),
         "south": float(os.getenv('GEOTIFF_BBOX_SOUTH', -55.0)),

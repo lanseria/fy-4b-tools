@@ -38,7 +38,7 @@ def add_boundaries_to_geotiff(input_geotiff, output_png):
         print(f"Error reading GeoTIFF file: {e}")
         return
 
-    # --- 核心改进：精确控制输出分辨率 ---
+    # --- 精确控制输出分辨率 ---
     print("--- Step 2: Preparing high-fidelity plot ---")
     
     # 1. 设置一个固定的DPI

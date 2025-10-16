@@ -89,7 +89,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Crops or pads an image based on a timestamp, then cleans up the source file."
     )
-    # --- 核心改动：输入参数变为 timestamp ---
+    # --- 输入参数变为 timestamp ---
     parser.add_argument(
         "timestamp",
         type=str,
@@ -110,12 +110,12 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
 
-    # --- 核心改动：从环境变量读取配置 ---
+    # --- 从环境变量读取配置 ---
     crop_x = int(os.getenv('ADJUST_CROP_X', -135))
     crop_y = int(os.getenv('ADJUST_CROP_Y', -162))
     threshold = int(os.getenv('ADJUST_THRESHOLD', 10)) # 顺便也将 threshold 设为可配置
 
-    # --- 核心改动：自动构建文件路径 ---
+    # --- 自动构建文件路径 ---
     input_filename = f"fy4b_full_disk_{args.timestamp}.png"
     input_filepath = os.path.join(args.data_dir, input_filename)
     
@@ -138,7 +138,7 @@ if __name__ == "__main__":
     
     if success:
         print(f"\n✅ Padding adjustment successful.")
-        # --- 核心修正：根据标志决定是否删除 ---
+        # --- 根据标志决定是否删除 ---
         if not args.keep_source:
             try:
                 os.remove(input_filepath)
